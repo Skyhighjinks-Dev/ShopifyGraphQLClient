@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopifyGraphQLClient", "ShopifyGraphQLClient\ShopifyGraphQLClient.csproj", "{DCA60CE7-34F3-43A9-B146-DFC680C52037}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopifyGraphQLClient.Tests", "ShopifyGraphQLClient.Tests\ShopifyGraphQLClient.Tests.csproj", "{A6984C22-94C0-4E87-A727-246C1E0F68B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCA60CE7-34F3-43A9-B146-DFC680C52037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCA60CE7-34F3-43A9-B146-DFC680C52037}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCA60CE7-34F3-43A9-B146-DFC680C52037}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCA60CE7-34F3-43A9-B146-DFC680C52037}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6984C22-94C0-4E87-A727-246C1E0F68B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6984C22-94C0-4E87-A727-246C1E0F68B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6984C22-94C0-4E87-A727-246C1E0F68B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6984C22-94C0-4E87-A727-246C1E0F68B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D36D990F-5D5D-4CB0-9C6A-033DBBE91C5B}
+	EndGlobalSection
+EndGlobal
