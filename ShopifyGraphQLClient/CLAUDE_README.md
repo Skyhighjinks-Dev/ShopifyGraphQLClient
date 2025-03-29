@@ -1,192 +1,68 @@
-﻿# ShopifyGraphQLClient Documentation for Claude
+﻿# ShopifyGraphQLClient Reference Guide for Claude
 
-## IMPORTANT: READ BEFORE PROVIDING SHOPIFY REQUESTS
+## API Architecture
+- REST API wrapper around Shopify GraphQL
+- JSON request format -> GraphQL conversion -> Shopify API -> JSON response
+- Endpoints: 
+  - `/api/graphql` - Single requests
+  - `/api/bulk` - Multiple requests
+  - `/api/graphql/docs` - Documentation
 
-This is a documentation guide for using the ShopifyGraphQLClient API to interact with Shopify via GraphQL. When a user asks you to perform operations on their Shopify store, you'll need to construct a JSON payload conforming to this API's structure.
-
-Before responding to any Shopify-related request:
-1. Review this documentation thoroughly
-2. Format your response as a valid JSON payload that matches the examples below
-3. Include only required fields for the operation type
-4. For mutations, ensure all necessary data fields are present
-5. Follow success/error handling guidance
-
-## API Overview
-
-The ShopifyGraphQLClient converts simplified JSON requests to GraphQL queries. Key features:
-- JSON-to-GraphQL conversion
-- Support for queries (data retrieval) and mutations (data changes)
-- Bulk operations
-- Consistent success/failure responses
-
-## Request Format
-
-### Single Request
-
+## Request Structure
 ```json
 {
-  "operation": "query|mutation",
-  "resource": "products|orders|customers|etc",
-  "fields": ["field1", "field2", "..."],
-  "parameters": {
-    "paramName": "value"
-  },
-  "filters": {
-    "filterName": "value"
-  },
-  "data": {
-    "fieldName": "value"
-  }
+  "operation": "query|mutation",  // Required
+  "resource": "products|orders|customers|etc",  // Required
+  "fields": ["field1", "field2"],  // Required - Handle connection patterns
+  "parameters": { "first": 50 },  // Optional - Pagination/filters
+  "filters": { "query": "status:open" },  // Optional - Search params
+  "data": { "field": "value" }  // Required for mutations only
 }
 ```
 
-### Bulk Request
+## Connection Pattern Requirements
+- All collection queries use Shopify connection pattern
+- Format: `edges { node { fields } }`
+- Each connection REQUIRES `first` or `last` parameter
+- This applies to NESTED connections (variants, lineItems, etc.)
 
-```json
-{
-  "requests": [
-    {
-      "operation": "query",
-      "resource": "products",
-      "fields": ["id", "title"]
-    },
-    {
-      "operation": "query",
-      "resource": "orders",
-      "fields": ["id", "name"]
-    }
-  ]
-}
-```
-
-## Common Resources and Operations
-
-### Products
-
-**Query Example:**
+## Examples for Product Queries
 ```json
 {
   "operation": "query",
   "resource": "products",
-  "fields": ["id", "title", "description", "productType", "vendor"],
+  "fields": [
+    "edges { node { id, title, description, variants(first: 20) { edges { node { id, sku, price } } } } }"
+  ],
   "parameters": {
-    "first": 5
-  },
-  "filters": {
-    "title": "T-Shirt"
+    "first": 50
   }
 }
 ```
 
-**Create Example:**
+## Examples for Mutations
 ```json
 {
   "operation": "mutation",
   "resource": "product",
-  "fields": [
-    "product { id, title }",
-    "userErrors { field, message }"
-  ],
-  "data": {
-    "title": "New Product",
-    "productType": "Clothing",
-    "vendor": "My Brand"
-  }
-}
-```
-
-**Update Example:**
-```json
-{
-  "operation": "mutation",
-  "resource": "product",
-  "fields": [
-    "product { id, title }",
-    "userErrors { field, message }"
-  ],
-  "parameters": {
-    "operation": "update"
-  },
+  "fields": ["product { id }", "userErrors { field, message }"],
+  "parameters": { "operation": "update" },  // For updates
   "data": {
     "id": "gid://shopify/Product/12345",
-    "title": "Updated Product Name"
+    "title": "Updated Name"
   }
 }
 ```
 
-### Orders
+## Common Errors
+- "Invalid URI" - Absolute GraphQLEndpoint URL required in settings
+- "Field doesn't exist on type ProductConnection" - Missing edges/node pattern
+- "You must provide one of first or last" - Missing pagination parameter
+- Authentication errors - Check token in settings
 
-**Query Example:**
-```json
-{
-  "operation": "query",
-  "resource": "orders",
-  "fields": ["id", "name", "totalPrice", "displayFinancialStatus"],
-  "parameters": {
-    "first": 3
-  },
-  "filters": {
-    "displayFinancialStatus": "PAID"
-  }
-}
-```
-
-### Customers
-
-**Query Example:**
-```json
-{
-  "operation": "query",
-  "resource": "customers",
-  "fields": ["id", "firstName", "lastName", "email", "ordersCount"],
-  "parameters": {
-    "first": 10
-  }
-}
-```
-
-## Field Requirements
-
-### Always Required
-- `operation`: Either "query" or "mutation"
-- `resource`: The Shopify resource to access
-- `fields`: The fields to return in the response
-
-### Sometimes Required
-- `data`: Required for mutations, contains the data to update or create
-- `parameters`: Optional for queries, required for some mutations
-- `filters`: Optional for queries, helps filter results
-
-## Response Handling
-
-All responses include a `success` flag. If `success` is `false`, an `error` message will be provided.
-
-Always check for both successful and error responses:
-
-```json
-// Success example
-{
-  "success": true,
-  "data": { ... },
-  "error": null
-}
-
-// Error example
-{
-  "success": false,
-  "data": null,
-  "error": "Resource not found: Product with ID 12345 does not exist"
-}
-```
-
-## For Claude AI Integration
-
-When a user asks you to help with their Shopify store, you should:
-
-1. Understand their request clearly
-2. Format a valid JSON payload following this documentation
-3. Include all required fields for the operation
-4. Return the response with appropriate success/error handling
-5. If the operation fails, help troubleshoot based on the error message
-
-Do not attempt to execute GraphQL directly - always use the provided JSON format which will be converted to GraphQL by the ShopifyGraphQLClient. When in doubt, refer back to this documentation for the correct format.
+## Configuration
+- Settings in appsettings.json:
+  - StoreUrl
+  - ApiVersion
+  - AccessToken
+  - GraphQLEndpoint (must be absolute URL)

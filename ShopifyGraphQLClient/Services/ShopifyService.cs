@@ -30,6 +30,14 @@ public class ShopifyService : IShopifyService
     // Configure HttpClient defaults
     _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     _httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", _settings.AccessToken);
+
+    // Set base address if not already set and if endpoint is relative
+    if (_httpClient.BaseAddress == null && !Uri.IsWellFormedUriString(_settings.GraphQLEndpoint, UriKind.Absolute))
+    {
+      // Use StoreUrl as base if GraphQLEndpoint is relative
+      _httpClient.BaseAddress = new Uri(_settings.StoreUrl);
+      _logger.LogInformation("Setting base address to: {BaseAddress}", _httpClient.BaseAddress);
+    }
   }
 
   /// <inheritdoc />
@@ -60,8 +68,27 @@ public class ShopifyService : IShopifyService
       var jsonContent = JsonSerializer.Serialize(payload);
       var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
+      // Ensure we have an absolute URI for the endpoint
+      Uri endpointUri;
+      if (Uri.IsWellFormedUriString(_settings.GraphQLEndpoint, UriKind.Absolute))
+      {
+        endpointUri = new Uri(_settings.GraphQLEndpoint);
+      }
+      else if (_httpClient.BaseAddress != null)
+      {
+        endpointUri = new Uri(_httpClient.BaseAddress, _settings.GraphQLEndpoint);
+      }
+      else
+      {
+        return new GraphQLResponse
+        {
+          Success = false,
+          Error = "Invalid GraphQLEndpoint configuration: endpoint must be absolute or BaseAddress must be set."
+        };
+      }
+
       // Execute the request
-      var response = await _httpClient.PostAsync(_settings.GraphQLEndpoint, content);
+      var response = await _httpClient.PostAsync(endpointUri, content);
       var responseBody = await response.Content.ReadAsStringAsync();
 
       // Handle the response
@@ -155,15 +182,13 @@ public class ShopifyService : IShopifyService
 
     return response;
   }
-}
 
-/// <summary>
-/// Settings for Shopify API connection
-/// </summary>
-public class ShopifySettings
-{
-  public string StoreUrl { get; set; } = string.Empty;
-  public string ApiVersion { get; set; } = string.Empty;
-  public string AccessToken { get; set; } = string.Empty;
-  public string GraphQLEndpoint { get; set; } = string.Empty;
+
+  public class ShopifySettings
+  {
+    public string StoreUrl { get; set; } = string.Empty;
+    public string ApiVersion { get; set; } = string.Empty;
+    public string AccessToken { get; set; } = string.Empty;
+    public string GraphQLEndpoint { get; set; } = string.Empty;
+  }
 }

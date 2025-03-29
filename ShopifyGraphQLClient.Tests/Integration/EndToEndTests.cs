@@ -9,6 +9,7 @@ using Moq.Protected;
 using ShopifyGraphQLClient.Models;
 using ShopifyGraphQLClient.Services;
 using Xunit;
+using static ShopifyGraphQLClient.Services.ShopifyService;
 
 namespace ShopifyGraphQLClient.Tests.Integration;
 
@@ -41,10 +42,10 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
         // Replace ShopifySettings with test values
         services.Configure<ShopifySettings>(opt =>
         {
-          opt.StoreUrl = "https://test-store.myshopify.com";
-          opt.ApiVersion = "2023-10";
-          opt.AccessToken = "test-token";
-          opt.GraphQLEndpoint = "https://test-store.myshopify.com/admin/api/2023-10/graphql.json";
+          opt.StoreUrl = "https://ze5j0r-dt.myshopify.com";
+          opt.ApiVersion = "2025-01";
+          opt.AccessToken = "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";
+          opt.GraphQLEndpoint = "https://ze5j0r-dt.myshopify.com/admin/api/2023-10/graphql.json";
         });
       });
     });

@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using ShopifyGraphQLClient.Services;
+﻿using ShopifyGraphQLClient.Services;
 using ShopifyGraphQLClient.Middleware;
+using static ShopifyGraphQLClient.Services.ShopifyService;
 
 namespace ShopifyGraphQLClient
 {
@@ -19,6 +17,10 @@ namespace ShopifyGraphQLClient
       {
         c.SwaggerDoc("v1", new() { Title = "Shopify GraphQL Client API", Version = "v1" });
       });
+
+      // Configure Shopify settings
+      builder.Services.Configure<ShopifySettings>(
+          builder.Configuration.GetSection("ShopifySettings"));
 
       // Register services
       builder.Services.AddHttpClient();

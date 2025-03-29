@@ -8,6 +8,7 @@ using Moq.Protected;
 using ShopifyGraphQLClient.Models;
 using ShopifyGraphQLClient.Services;
 using Xunit;
+using static ShopifyGraphQLClient.Services.ShopifyService;
 
 namespace ShopifyGraphQLClient.Tests.Services;
 
